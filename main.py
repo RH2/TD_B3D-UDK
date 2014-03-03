@@ -1,4 +1,4 @@
-#public domain Richard Hale ©2014
+#public domain Richard Hale Â©2014
 
 import bpy
  
@@ -11,10 +11,10 @@ def main(context):
     for ob in bpy.data.groups:
         print(ob) 
         noTransform=True
-        transformLocation
-        transformRotation
+        transformLocation=[]
+        transformRotation=[]
         
-        while(noTransform)  
+        while(noTransform):  
         #goes through all objects in this group
         #until it reaches a pivot object,
         #then it records transforms and ends the loop.  
@@ -47,6 +47,7 @@ def main(context):
         #TODO
             #
             #
+            bpy.ops.export_scene.fbx(check_existing=True, filepath="", filter_glob="*.fbx", use_selection=False, global_scale=1.0, axis_forward='-Z', axis_up='Y', object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'}, use_mesh_modifiers=True, mesh_smooth_type='FACE', use_mesh_edges=False, use_armature_deform_only=False, use_anim=True, use_anim_action_all=True, use_default_take=True, use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
         #negate transform adjustment
         for so in ob.objects:
             so.location[0]=so.location[0] + transformLocation[0]
@@ -58,31 +59,27 @@ def main(context):
             so.rotation_euler[2]=so.rotation_euler[2] + transformRotation[2]
                     
 def instanceExport(context):
-    TD_STRING="Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
-    TD_PACKAGE=""
-    TD_TAG=""ExportedComponent""
     print("export to .t3d")
-    #begin exporting group instances
-    #copy to buffer?
-    bpy.ops.object.select_all(action="DESELECT")###TOGGLE/DESELECT/SELECT###
-    bpy.ops.object.select_linked(extend=False, type='DUPGROUP')
-    
+    TD_STRING = "Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
+    TD_PACKAGE = "ScriptTest"
+    TD_TAG = """ExportedComponent"""
     for ob in bpy.data.objects:
         if not hasattr(ob.dupli_group, "name"):
             print(ob.name+": was not an instance")
         else:
             print(ob.dupli_group.name)
-            TD_STRING+="/tBegin Actor Class=StaticMeshActor Name="+ob.dupli_group.name+" Archetype=StaticMeshActor'Engine.Default__StaticMeshActor'\n"
-            TD_SRTING+="/t/tBegin Object Class=StaticMeshComponent Name=StaticMeshComponent0 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'/n"
-            TD_SRTING+="/t/tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'/n"
-            TD_SRTING+="/t/tEnd Object/n"
-            TD_SRTING+="/t/tLocation=(X="+bpy.data.objects['Group'].location.x+",Y="+bpy.data.objects['Group'].location.y+",Z="+bpy.data.objects['Group'].location.z+")/n"
-            TD_SRTING+="/t/tRotation=(Roll="+bpy.data.objects['Group'].rotation_euler.x+",Pitch="+bpy.data.objects['Group'].rotation_euler.y+",Yaw="+bpy.data.objects['Group'].rotation_euler.z+")/n"
-            TD_SRTING+="/t/tDrawScale3D=(X="+bpy.data.objects['Group'].scale.x+",Y="+bpy.data.objects['Group'].scale.y+",Z="+bpy.data.objects['Group'].scale.z+")/n"
-            TD_SRTING+="/tTag="+TD_TAG+"/n"
-            TD_SRTING+="/t/tEnd Actor/n"
-    TD_SRTING+="/tEnd Level/n"
-    TD_SRTING+="End Map/n"
+            TD_STRING =+ "\tBegin Actor Class=StaticMeshActor Name="+ob.dupli_group.name+" Archetype=StaticMeshActor'Engine.Default__StaticMeshActor'\n"
+            TD_STRING =+ "\t\tBegin Object Class=StaticMeshComponent Name=StaticMeshComponent0 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'\n"
+            TD_STRING =+ "\t\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
+            TD_STRING =+ "\t\tEnd Object\n"
+            TD_STRING =+ "\t\tLocation=(X="+bpy.data.objects['Group'].location.x+",Y="+bpy.data.objects['Group'].location.y+",Z="+bpy.data.objects['Group'].location.z+")\n"
+            TD_STRING =+ "\t\tRotation=(Roll="+bpy.data.objects['Group'].rotation_euler.x+",Pitch="+bpy.data.objects['Group'].rotation_euler.y+",Yaw="+bpy.data.objects['Group'].rotation_euler.z+")\n"
+            TD_STRING =+ "\t\tDrawScale3D=(X="+bpy.data.objects['Group'].scale.x+",Y="+bpy.data.objects['Group'].scale.y+",Z="+bpy.data.objects['Group'].scale.z+")\n"
+            TD_STRING =+ "\tTag="+TD_TAG+"\n"
+            TD_STRING =+ "\t\tEnd Actor\n"
+    TD_STRING =+ "\tEnd Level\n"
+    TD_STRING =+ "End Map\n"
+    print(TD_STRING)
 
 class ToolsPanel(bpy.types.Panel):
     bl_label = "UDK EXPORT UTILITY"
@@ -100,7 +97,7 @@ class ToolsPanel(bpy.types.Panel):
  
  
  
-class OBJECT_OT_exportinstance(bpy.types.Operator):
+class Aexportinstance(bpy.types.Operator):
     '''Click on ME'''
     bl_idname = "object.export_instance"
     bl_label = "EXPORT .T3D"
@@ -113,7 +110,7 @@ class OBJECT_OT_exportinstance(bpy.types.Operator):
         instanceExport(context)
         return {'FINISHED'}
     
-class OBJECT_OT_exportfbx(bpy.types.Operator):
+class Aexportfbx(bpy.types.Operator):
     '''Tooltip'''
     bl_idname = "object.export_fbx"
     bl_label = "EXPORT .FBX"
@@ -124,20 +121,18 @@ class OBJECT_OT_exportfbx(bpy.types.Operator):
  
     def execute(self, context):
         print("dis fbx button_update running")
-        bpy.ops.export_scene.fbx
+        #bpy.ops.export_scene.fbx
         main(context)
         return {'FINISHED'}        
     
- 
+#bpy.utils.register_module(__name__)
+#if __name__ == "__main__":
+#    register() 
 def register():
     bpy.utils.register_module(__name__)
-    bpy.utils.register_class(OBJECT_OT_exportinstance)
-    bpy.utils.register_class(OBJECT_OT_exportfbx)
+    bpy.utils.register_class(Aexportinstance)
+    bpy.utils.register_class(Aexportfbx)
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.utils.unregister_class(OBJECT_OT_exportinstance)
-    bpy.utils.register_class(OBJECT_OT_exportfbx)
-    
-#bpy.utils.register_module(__name__)
-if __name__ == "__main__":
-    register()
+    bpy.utils.unregister_class(Aexportinstance)
+    bpy.utils.unregister_class(Aexportfbx)
