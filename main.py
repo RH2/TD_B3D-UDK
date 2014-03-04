@@ -7,23 +7,24 @@ def main(context):
     #    print(ob)
     #goes through all groups
     for go in bpy.data.groups:
-        print(go) 
-        noTransform=True    #controls the while loop 
         transformLocation=[0.000,0.000,0.000]
         transformRotation=[0.000,0.000,0.000]
-        
-        while(noTransform):  
+
         #goes through all objects in this group
         #until it reaches a pivot object,
         #then it records transforms and ends the loop.  
-           for ob in go.objects:
-                print(ob.name)
-                nameSegments = ob.name.split("_",".")
-                for seg in nameSegments:
-                    if ( seg in ['pivot', 'transform', 'center']):
-                        transformLocation=ob.location
-                        transformRotation=ob.rotation_euler
-                        noTransform=False
+        for ob in go.objects:
+            nameSegments = ob.name.replace(".","_")
+            nameSegments = nameSegments.split('_')#ob.name.split('_')
+
+            for seg in nameSegments:
+                print("+------------+")
+                print(seg)
+                if ( seg in ['pivot', 'transform', 'center']):
+                    print("+<Keyword Match>")
+                    transformLocation=ob.location
+                    transformRotation=ob.rotation_euler
+                    break
                          
                 #so.select=True
         #adjust transforms of each object in group        
