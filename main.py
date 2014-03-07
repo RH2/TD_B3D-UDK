@@ -1,5 +1,8 @@
 import bpy
- 
+import math
+from mathutils import Vector
+
+TD_SCALE=50.000
 #main function handles fbx export process. 
 def main(context):
     print("FBX EXPORT BLOCK ------------------------------------------------")
@@ -7,8 +10,9 @@ def main(context):
     #    print(ob)
     #goes through all groups
     for go in bpy.data.groups:
-        transformLocation=[0.000,0.000,0.000]
-        transformRotation=[0.000,0.000,0.000]
+        transformLocation= Vector((0.00,0.00,0.00))
+        transformRotation= Vector((0.00,0.00,0.00))
+
 
         #goes through all objects in this group
         #until it reaches a pivot object,
@@ -18,19 +22,23 @@ def main(context):
             nameSegments = nameSegments.split('_')#ob.name.split('_')
 
             for seg in nameSegments:
-                print("+------------+")
-                print(seg)
-                if ( seg in ['pivot','Pivot','PIVOT','transform','Transform',"TRANSFORM", 'center',"Center","CENTER"]):
-                    print("+<Keyword Match>")
-                    transformLocation=ob.location
-                    transformRotation=ob.rotation_euler
+                if ( seg in [
+                'pivot','Pivot','PIVOT',
+                'transform','Transform',"TRANSFORM",
+                'center',"Center","CENTER"]):
+                    transformLocation[0]=ob.location[0]
+                    transformLocation[1]=ob.location[1]
+                    transformLocation[2]=ob.location[2]
+                    transformRotation=ob.rotation_euler[0]
+                    transformRotation=ob.rotation_euler[1]
+                    transformRotation=ob.rotation_euler[2]
                     break
                          
                 #so.select=True
         #adjust transforms of each object in group
         bpy.ops.object.select_all(action='DESELECT')       
         for ob in go.objects:
-            ob.select=True    
+            ob.select=True              
             ob.location[0]=ob.location[0] - transformLocation[0]
             ob.location[1]=ob.location[1] - transformLocation[1]
             ob.location[2]=ob.location[2] - transformLocation[2]
@@ -39,13 +47,12 @@ def main(context):
             ob.rotation_euler[1]=ob.rotation_euler[1] - transformRotation[1]
             ob.rotation_euler[2]=ob.rotation_euler[2] - transformRotation[2]
         #export group to .fbx
-            TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
-            TD_SCALE=1.000
-            bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
-            axis_forward='-Z',axis_up='Y',object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'},use_mesh_modifiers=True,mesh_smooth_type='FACE',
-            use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
+        TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
+        bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
+        axis_forward='-Z',axis_up='Y',object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'},use_mesh_modifiers=True,mesh_smooth_type='FACE',
+        use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
         #negate transform adjustment
-        for ob in go.objects:
+        for ob in go.objects:          
             ob.location[0]=ob.location[0] + transformLocation[0]
             ob.location[1]=ob.location[1] + transformLocation[1]
             ob.location[2]=ob.location[2] + transformLocation[2]
@@ -75,14 +82,15 @@ def instanceExport(context):
             TD_STRING+="\t\tBegin Object Class=StaticMeshComponent Name=StaticMeshComponent0 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'\n"
             TD_STRING+="\t\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
             TD_STRING+="\t\tEnd Object\n"
-            TD_STRING+="\t\tLocation=(X="+str(bpy.data.objects['Group'].location.x)+",Y="+str(bpy.data.objects['Group'].location.y)+",Z="+str(bpy.data.objects['Group'].location.z)+")\n"
-            TD_STRING+="\t\tRotation=(Roll="+str(bpy.data.objects['Group'].rotation_euler.x)+",Pitch="+str(bpy.data.objects['Group'].rotation_euler.y)+",Yaw="+str(bpy.data.objects['Group'].rotation_euler.z)+")\n"
-            TD_STRING+="\t\tDrawScale3D=(X="+str(bpy.data.objects['Group'].scale.x)+",Y="+str(bpy.data.objects['Group'].scale.y)+",Z="+str(bpy.data.objects['Group'].scale.z)+")\n"
+            TD_STRING+="\t\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            TD_STRING+="\t\tRotation=(Roll="+str(math.radians(ob.rotation_euler.x))+",Pitch="+str(math.radians(ob.rotation_euler.y))+",Yaw="+str(math.radians(ob.rotation_euler.z))+")\n"
+            TD_STRING+="\t\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
             TD_STRING+="\t\tTag="+TD_TAG+"\n"
             TD_STRING+="\t\tEnd Actor\n"
     TD_STRING+="\tEnd Level\n"
     TD_STRING+="End Map\n"
     print(TD_STRING)
+    bpy.context.window_manager.clipboard = TD_STRING
 
 class ToolsPanel(bpy.types.Panel):
     bl_label = "UDK EXPORT UTILITY"
