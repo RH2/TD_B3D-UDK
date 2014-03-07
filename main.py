@@ -20,15 +20,17 @@ def main(context):
             for seg in nameSegments:
                 print("+------------+")
                 print(seg)
-                if ( seg in ['pivot', 'transform', 'center']):
+                if ( seg in ['pivot','Pivot','PIVOT','transform','Transform',"TRANSFORM", 'center',"Center","CENTER"]):
                     print("+<Keyword Match>")
                     transformLocation=ob.location
                     transformRotation=ob.rotation_euler
                     break
                          
                 #so.select=True
-        #adjust transforms of each object in group        
+        #adjust transforms of each object in group
+        bpy.ops.object.select_all(action='DESELECT')       
         for ob in go.objects:
+            ob.select=True    
             ob.location[0]=ob.location[0] - transformLocation[0]
             ob.location[1]=ob.location[1] - transformLocation[1]
             ob.location[2]=ob.location[2] - transformLocation[2]
@@ -37,9 +39,11 @@ def main(context):
             ob.rotation_euler[1]=ob.rotation_euler[1] - transformRotation[1]
             ob.rotation_euler[2]=ob.rotation_euler[2] - transformRotation[2]
         #export group to .fbx
-        #TODO
-            #
-            #
+            TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
+            TD_SCALE=1.000
+            bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
+            axis_forward='-Z',axis_up='Y',object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'},use_mesh_modifiers=True,mesh_smooth_type='FACE',
+            use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
         #negate transform adjustment
         for ob in go.objects:
             ob.location[0]=ob.location[0] + transformLocation[0]
@@ -54,7 +58,7 @@ def main(context):
 def instanceExport(context):
     print("T3D EXPORT BLOCK ------------------------------------------------")    
     TD_STRING="Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
-    TD_PACKAGE="BATCHIMPORTTHING_PACKAGENAME"
+    TD_PACKAGE=bpy.context.scene['udkPackage']
     TD_TAG='"ExportedComponent"'
     
     #begin exporting group instances
@@ -85,15 +89,22 @@ class ToolsPanel(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
+    
  
     def draw(self, context):
         layout = self.layout
+        row=layout.row()
+        row.prop(context.scene, 'fbxFilePath')
+        row=layout.row()
+        row.prop(context.scene, 'udkPackage')        
         row=layout.row()
        #row.operator("operator's bl_idname", icon="")
         row.operator("object.export_instance",icon="STICKY_UVS_DISABLE")
         row=layout.row()
         row.operator("object.export_fbx",icon="STICKY_UVS_LOC")
  
+        #do: layout.prop(object, 'propertyname') where the property is of type StringProperty with subtype='DIR_PATH'
+        # or FILE_PATH i think, depending which one you want
  
  
 class OBJECT_OT_exportinstance(bpy.types.Operator):
@@ -125,14 +136,17 @@ class OBJECT_OT_exportfbx(bpy.types.Operator):
     
  
 def register():
+    bpy.types.Scene.fbxFilePath = bpy.props.StringProperty(subtype="DIR_PATH")
+    bpy.types.Scene.udkPackage = bpy.props.StringProperty()
     bpy.utils.register_module(__name__)
     bpy.utils.register_class(OBJECT_OT_exportinstance)
     bpy.utils.register_class(OBJECT_OT_exportfbx)
 def unregister():
+    del(bpy.types.Scene.fbxFilePath)
+    del(bpy.types.Scene.udkPackage)
     bpy.utils.unregister_module(__name__)
     bpy.utils.unregister_class(OBJECT_OT_exportinstance)
-    bpy.utils.register_class(OBJECT_OT_exportfbx)
-    
+    bpy.utils.register_class(OBJECT_OT_exportfbx)    
 #bpy.utils.register_module(__name__)
 if __name__ == "__main__":
     register()
