@@ -26,12 +26,12 @@ def main(context):
                 'pivot','Pivot','PIVOT',
                 'transform','Transform',"TRANSFORM",
                 'center',"Center","CENTER"]):
-                    transformLocation[0]=ob.location[0]
-                    transformLocation[1]=ob.location[1]
-                    transformLocation[2]=ob.location[2]
-                    transformRotation=ob.rotation_euler[0]
-                    transformRotation=ob.rotation_euler[1]
-                    transformRotation=ob.rotation_euler[2]
+                    transformLocation[0] = ob.location[0]
+                    transformLocation[1] = ob.location[1]
+                    transformLocation[2] = ob.location[2]
+                    transformRotation[0] = ob.rotation_euler[0]
+                    transformRotation[1] = ob.rotation_euler[1]
+                    transformRotation[2] = ob.rotation_euler[2]
                     break
                          
                 #so.select=True
@@ -39,13 +39,13 @@ def main(context):
         bpy.ops.object.select_all(action='DESELECT')       
         for ob in go.objects:
             ob.select=True              
-            ob.location[0]=ob.location[0] - transformLocation[0]
-            ob.location[1]=ob.location[1] - transformLocation[1]
-            ob.location[2]=ob.location[2] - transformLocation[2]
+            ob.location[0]-=transformLocation[0]
+            ob.location[1]-=transformLocation[1]
+            ob.location[2]-=transformLocation[2]
             
-            ob.rotation_euler[0]=ob.rotation_euler[0] - transformRotation[0]
-            ob.rotation_euler[1]=ob.rotation_euler[1] - transformRotation[1]
-            ob.rotation_euler[2]=ob.rotation_euler[2] - transformRotation[2]
+            ob.rotation_euler[0]-=transformRotation[0]
+            ob.rotation_euler[1]-=transformRotation[1]
+            ob.rotation_euler[2]-=transformRotation[2]
         #export group to .fbx
         TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
         bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
@@ -53,13 +53,13 @@ def main(context):
         use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
         #negate transform adjustment
         for ob in go.objects:          
-            ob.location[0]=ob.location[0] + transformLocation[0]
-            ob.location[1]=ob.location[1] + transformLocation[1]
-            ob.location[2]=ob.location[2] + transformLocation[2]
+            ob.location[0]+=transformLocation[0]
+            ob.location[1]+=transformLocation[1]
+            ob.location[2]+=transformLocation[2]
             
-            ob.rotation_euler[0]=ob.rotation_euler[0] + transformRotation[0]
-            ob.rotation_euler[1]=ob.rotation_euler[1] + transformRotation[1]
-            ob.rotation_euler[2]=ob.rotation_euler[2] + transformRotation[2]
+            ob.rotation_euler[0]+=transformRotation[0]
+            ob.rotation_euler[1]+=transformRotation[1]
+            ob.rotation_euler[2]+=transformRotation[2]
                     
 #exports instances into udk scene format (only static mesh instances at the moment)
 def instanceExport(context):
