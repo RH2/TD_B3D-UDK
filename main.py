@@ -82,8 +82,9 @@ def instanceExport(context):
             TD_STRING+="\t\tBegin Object Class=StaticMeshComponent Name=StaticMeshComponent0 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'\n"
             TD_STRING+="\t\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
             TD_STRING+="\t\tEnd Object\n"
-            TD_STRING+="\t\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
-            TD_STRING+="\t\tRotation=(Roll="+str(math.radians(ob.rotation_euler.x))+",Pitch="+str(math.radians(ob.rotation_euler.y))+",Yaw="+str(math.radians(ob.rotation_euler.z))+")\n"
+            TD_STRING+="\t\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            #360/65536 65536=2^16=2bytes
+            TD_STRING+="\t\tRotation=(Roll="+str(int(65535*(ob.rotation_euler.x/(math.pi*2))))+",Pitch="+str(int(65535*(ob.rotation_euler.y/(math.pi*2))))+",Yaw="+str(int(65535*(ob.rotation_euler.z/(math.pi*2))))+")\n" 
             TD_STRING+="\t\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
             TD_STRING+="\t\tTag="+TD_TAG+"\n"
             TD_STRING+="\t\tEnd Actor\n"
