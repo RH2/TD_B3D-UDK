@@ -36,6 +36,10 @@ def main(context):
                          
                 #so.select=True
         #adjust transforms of each object in group
+    #all layers visible
+        layerBool= list(bpy.context.scene.layers)
+        for i in range(0,len(bpy.context.scene.layers)):
+            bpy.context.scene.layers[i]=True 
         bpy.ops.object.select_all(action='DESELECT')       
         for ob in go.objects:
             ob.select=True              
@@ -46,11 +50,14 @@ def main(context):
             ob.rotation_euler[0]-=transformRotation[0]
             ob.rotation_euler[1]-=transformRotation[1]
             ob.rotation_euler[2]-=transformRotation[2]
-        #export group to .fbx
+#export group to .fbx
         TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
         bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
         axis_forward='-Z',axis_up='Y',object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'},use_mesh_modifiers=True,mesh_smooth_type='FACE',
         use_anim_optimize=True, anim_optimize_precision=6.0, path_mode='AUTO', batch_mode='OFF', use_batch_own_dir=True, use_metadata=True)
+    #go back to previous layer visibility    
+        for i in range(0,len(bpy.context.scene.layers)):
+            bpy.context.scene.layers[i]=layerBool[i]                       
         #negate transform adjustment
         for ob in go.objects:          
             ob.location[0]+=transformLocation[0]
