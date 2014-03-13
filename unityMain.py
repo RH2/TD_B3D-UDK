@@ -2,8 +2,11 @@
 # UNITY-3D MODIFICATION #
 #########################
 import bpy
+import copy
 import math
+import mathutils
 from mathutils import Vector
+from math import radians
 
 
 TD_SCALE=1
@@ -88,9 +91,77 @@ def instanceExport(context):
             print(ob.name+": was not an instance")
         else:
             TD_STRING+='\t\t<OBJECT NAME="'+ob.dupli_group.name+'" '
-            TD_STRING+='POSITION="'+str(ob.location.x*TD_SCALE)+","+str(ob.location.y*TD_SCALE)+","+str(ob.location.z*TD_SCALE)+'" '
-            TD_STRING+='ROTATION="'+str(ob.rotation_euler.x)+","+str(ob.rotation_euler.y)+","+str(ob.rotation_euler.z)+'" '
-            TD_STRING+='SCALE="'+str(ob.scale.x)+","+str(ob.scale.y)+","+str(ob.scale.z)+'" />\n'            
+            exportLocation = copy.copy(ob.location)
+            exportLocation.x *= 1.0
+            exportLocation.y *= 1.0
+            exportLocation.z *= 1.0 #swap the z and y axis.
+            TD_STRING+='POSITION="'+str(exportLocation.x*TD_SCALE)+", "+str(exportLocation.z*TD_SCALE)+", "+str(exportLocation.y*TD_SCALE)+'" '
+            
+#convert euler rotation to quaternion  (euler hack.)
+            #vec = mathutils.Vector((0.0, 0.0, 0.0))
+            #vec[0] = ob.rotation_euler[0] - radians(90.0)
+            #vec[1] = ob.rotation_euler[1]
+            #vec[2] = ob.rotation_euler[2]            
+#            vecSign = mathutils.Vector((1, 1, 1))
+#                           
+#            vec[0] = (abs(ob.matrix_world.to_euler()[0]- radians(90.0))%(math.pi*2)) 
+#            vec[1] = (abs(ob.matrix_world.to_euler()[0])%(math.pi*2)) 
+#            vec[2] = (abs(ob.matrix_world.to_euler()[0])%(math.pi*2)) 
+#                             
+#            if vec[0] < 0:
+#                vecSign[0]=-1
+#            if vec[1] < 0:
+#                vecSign[1]=-1
+#            if vec[2] < 0:
+#                vecSign[2]=-1             
+            
+            #TD_STRING+='ROTATION="'+"1.0"+", "+str(vec[0]*vecSign[0])+", "+str(vec[2]*vecSign[2])+", "+str(vec[1]*vecSign[1])+'" '
+            #TD_STRING+='ROTATION="'+str(ob.rotation_quaternion[0])+", "+str(ob.rotation_quaternion[1])+", "+str(ob.rotation_quaternion[2])+", "+str(ob.rotation_quaternion[3])+'" '
+            #TD_STRING+='ROTATION="'+str(ob.rotation_quaternion.normalized()[0])+", "+str(ob.rotation_quaternion.normalized()[1])+", "+str(ob.rotation_quaternion.normalized()[2])+", "+str(ob.rotation_quaternion.normalized()[3])+'" '
+            
+            
+            # Dob=copy.copy(ob)
+            # Dob.rotation_mode='XYZ'
+            # Ox = math.pi/2
+            # Oy = math.pi/2
+            # Oz = -math.pi/2
+            # Dob.rotation_euler[0] -= Ox
+            # Dob.rotation_euler[1] -= Oy
+            # Dob.rotation_euler[2] -= Oz
+            # Dob.rotation_mode='QUATERNION'
+            # exportQuaternion = Dob.rotation_quaternion.normalized()
+            # qW = exportQuaternion[0]
+            # qX = exportQuaternion[1]
+            # qY = exportQuaternion[2]
+            # qZ = exportQuaternion[3]
+            previousRotationMode=ob.rotation_mode
+            ob.rotation_mode='QUATERNION'
+
+            obQuaternion=copy.copy(ob.rotation_quaternion)
+            ob_XYZ=copy.copy(obQuaternion.to_euler('XYZ'))
+            ob_XYZ[0] += 0.0
+            ob_XYZ[1] += 0.0
+            ob_XYZ[2] += 0.0
+            ob_XYZ_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
+            ob_XZY=copy.copy(ob_XYZ_QUATERNION.to_euler('XZY'))
+            ob_XZY_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
+            finalizedQ =copy.copy(ob_XZY_QUATERNION.normalized())
+            qW = finalizedQ[0]
+            qX = finalizedQ[1]
+            qY = finalizedQ[2]
+            qZ = finalizedQ[3]            
+            finalEulerXZY = finalizedQ.to_euler('XZY')
+            eX = finalEulerXZY[0]
+            eY = finalEulerXZY[1]
+            eZ = finalEulerXZY[2]
+
+            TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" '
+ 
+            ob.rotation_mode='QUATERNION'
+            ob.rotation_mode=previousRotationMode
+
+
+            TD_STRING+='SCALE="'+str(ob.scale.x)+", "+str(ob.scale.y)+", "+str(ob.scale.z)+'" />\n'            
             #360/65536 65536=2^16=2bytes
             #TD_STRING+="\t\tRotation=(Roll="+str(int(65535*(ob.rotation_euler.x/(math.pi*2))))+",Pitch="+str(int(65535*(-1*ob.rotation_euler.y/(math.pi*2))))+",Yaw="+str(int(65535*(-1*ob.rotation_euler.z/(math.pi*2))))+")\n" 
     TD_STRING+="\t</ENTITIES>\n</LEVELSETTINGS>"
