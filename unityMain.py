@@ -139,7 +139,7 @@ def instanceExport(context):
 
             obQuaternion=copy.copy(ob.rotation_quaternion)
             ob_XYZ=copy.copy(obQuaternion.to_euler('XYZ'))
-            ob_XYZ[0] += 0.0
+            ob_XYZ[0] += radians(90.0)
             ob_XYZ[1] += 0.0
             ob_XYZ[2] += 0.0
             ob_XYZ_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
@@ -155,7 +155,20 @@ def instanceExport(context):
             eY = finalEulerXZY[1]
             eZ = finalEulerXZY[2]
 
-            TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" '
+
+            # ob.rotation_mode='XYZ'
+            # newRotation = copy.copy(ob.rotation_euler)
+            # newRotation.order = "XYZ"
+            # nq = newRotation.to_quaternion()
+            # finalizedQ = nq.normalized()
+            # qW = finalizedQ[0]
+            # qX = finalizedQ[1]
+            # qY = finalizedQ[2]
+            # qZ = finalizedQ[3] 
+
+
+
+            TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" ' #export default rotation w-x z-y
  
             ob.rotation_mode='QUATERNION'
             ob.rotation_mode=previousRotationMode
