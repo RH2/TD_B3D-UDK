@@ -2,6 +2,7 @@
 # UNITY-3D MODIFICATION #
 #########################
 import bpy
+import bpy_extras
 import copy
 import math
 import mathutils
@@ -97,54 +98,39 @@ def instanceExport(context):
             exportLocation.z *= 1.0 #swap the z and y axis.
             TD_STRING+='POSITION="'+str(exportLocation.x*TD_SCALE)+", "+str(exportLocation.z*TD_SCALE)+", "+str(exportLocation.y*TD_SCALE)+'" '
             
-#convert euler rotation to quaternion  (euler hack.)
-            #vec = mathutils.Vector((0.0, 0.0, 0.0))
-            #vec[0] = ob.rotation_euler[0] - radians(90.0)
-            #vec[1] = ob.rotation_euler[1]
-            #vec[2] = ob.rotation_euler[2]            
-#            vecSign = mathutils.Vector((1, 1, 1))
-#                           
-#            vec[0] = (abs(ob.matrix_world.to_euler()[0]- radians(90.0))%(math.pi*2)) 
-#            vec[1] = (abs(ob.matrix_world.to_euler()[0])%(math.pi*2)) 
-#            vec[2] = (abs(ob.matrix_world.to_euler()[0])%(math.pi*2)) 
-#                             
-#            if vec[0] < 0:
-#                vecSign[0]=-1
-#            if vec[1] < 0:
-#                vecSign[1]=-1
-#            if vec[2] < 0:
-#                vecSign[2]=-1             
-            
-            #TD_STRING+='ROTATION="'+"1.0"+", "+str(vec[0]*vecSign[0])+", "+str(vec[2]*vecSign[2])+", "+str(vec[1]*vecSign[1])+'" '
-            #TD_STRING+='ROTATION="'+str(ob.rotation_quaternion[0])+", "+str(ob.rotation_quaternion[1])+", "+str(ob.rotation_quaternion[2])+", "+str(ob.rotation_quaternion[3])+'" '
-            #TD_STRING+='ROTATION="'+str(ob.rotation_quaternion.normalized()[0])+", "+str(ob.rotation_quaternion.normalized()[1])+", "+str(ob.rotation_quaternion.normalized()[2])+", "+str(ob.rotation_quaternion.normalized()[3])+'" '
-            
-            
-            # Dob=copy.copy(ob)
-            # Dob.rotation_mode='XYZ'
-            # Ox = math.pi/2
-            # Oy = math.pi/2
-            # Oz = -math.pi/2
-            # Dob.rotation_euler[0] -= Ox
-            # Dob.rotation_euler[1] -= Oy
-            # Dob.rotation_euler[2] -= Oz
-            # Dob.rotation_mode='QUATERNION'
-            # exportQuaternion = Dob.rotation_quaternion.normalized()
-            # qW = exportQuaternion[0]
-            # qX = exportQuaternion[1]
-            # qY = exportQuaternion[2]
-            # qZ = exportQuaternion[3]
-            previousRotationMode=ob.rotation_mode
-            ob.rotation_mode='QUATERNION'
+            bpy.ops.object.select_all(action="DESELECT")
+            ob.select = True
+            bpy.context.scene.objects.active = ob
 
+            #bpy.ops.transform.rotate(value=radians(0), axis=(1, 0, 0), constraint_axis=(True, False, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+            #bpy.ops.transform.rotate(value=radians(-90), axis=(0, 1, 0), constraint_axis=(False, True, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+            #bpy.ops.transform.rotate(value=radians(-90), axis=(0, 0, 1), constraint_axis=(False, False, True), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+
+            previousRotationMode = ob.rotation_mode
+            ob.rotation_mode='QUATERNION'
             obQuaternion=copy.copy(ob.rotation_quaternion)
+            #bpy.ops.transform.rotate(value=radians(0), axis=(1, 0, 0), constraint_axis=(True, False, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+            #bpy.ops.transform.rotate(value=radians(90), axis=(0, 1, 0), constraint_axis=(False, True, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+            #bpy.ops.transform.rotate(value=radians(90), axis=(0, 0, 1), constraint_axis=(False, False, True), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)            
             ob_XYZ=copy.copy(obQuaternion.to_euler('XYZ'))
-            ob_XYZ[0] += radians(90.0)
-            ob_XYZ[1] += 0.0
-            ob_XYZ[2] += 0.0
+            print(ob_XYZ)
+            ob_XYZ[0] += math.radians(0) #+ math.cos(ob_XYZ[0])
+            ob_XYZ[1] += math.radians(0) #+ (2.0*math.sin(ob_XYZ[2]))
+            ob_XYZ[2] += math.radians(0) #+ math.sin(ob_XYZ[1])
             ob_XYZ_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
-            ob_XZY=copy.copy(ob_XYZ_QUATERNION.to_euler('XZY'))
+            ob_XZY=copy.copy(ob_XYZ_QUATERNION.to_euler('XYZ'))
             ob_XZY_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
+            #export_matrix=copy.copy(ob_XZY_QUATERNION.to_matrix())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='Z', to_up='Y')
+            #export_matrix=copy.copy(ob_XZY_QUATERNION.to_matrix())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='-Z', to_up='Y')
+            export_matrix=bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='-Z', to_up='Y')*copy.copy(ob_XZY_QUATERNION.to_matrix())
+            #export_matrix=copy.copy(ob.matrix_world.to_4x4())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='Y', to_up='Z').to_4x4()
+            
+            ob_XZY_QUATERNION = export_matrix.to_quaternion()
+            #quat_x = mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(-90.0))
+            #ob_XZY_QUATERNION= ob_XZY_QUATERNION+quat_x
+            #quat_y = mathutils.Quaternion((0.0, 1.0, 0.0), math.radians(90.0))
+            #quat_z = mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(90.0))
+            #ob_XZY_QUATERNION= ob_XZY_QUATERNION*quat_y*quat_z
             finalizedQ =copy.copy(ob_XZY_QUATERNION.normalized())
             qW = finalizedQ[0]
             qX = finalizedQ[1]
@@ -155,18 +141,7 @@ def instanceExport(context):
             eY = finalEulerXZY[1]
             eZ = finalEulerXZY[2]
 
-
-            # ob.rotation_mode='XYZ'
-            # newRotation = copy.copy(ob.rotation_euler)
-            # newRotation.order = "XYZ"
-            # nq = newRotation.to_quaternion()
-            # finalizedQ = nq.normalized()
-            # qW = finalizedQ[0]
-            # qX = finalizedQ[1]
-            # qY = finalizedQ[2]
-            # qZ = finalizedQ[3] 
-
-
+            #bpy_extras.io_utils.axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
 
             TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" ' #export default rotation w-x z-y
  
@@ -178,8 +153,8 @@ def instanceExport(context):
             #360/65536 65536=2^16=2bytes
             #TD_STRING+="\t\tRotation=(Roll="+str(int(65535*(ob.rotation_euler.x/(math.pi*2))))+",Pitch="+str(int(65535*(-1*ob.rotation_euler.y/(math.pi*2))))+",Yaw="+str(int(65535*(-1*ob.rotation_euler.z/(math.pi*2))))+")\n" 
     TD_STRING+="\t</ENTITIES>\n</LEVELSETTINGS>"
-    print(TD_STRING)
-    bpy.context.window_manager.clipboard = TD_STRING
+    #print(TD_STRING)
+    #bpy.context.window_manager.clipboard = TD_STRING
     
     #EXPORT string to file
     folder=bpy.context.scene['fbxFilePath']
@@ -188,7 +163,7 @@ def instanceExport(context):
     writebuffer.write(TD_STRING)
     
 class ToolsPanel(bpy.types.Panel):
-    bl_label = "UDK EXPORT UTILITY"
+    bl_label = "UNITY EXPORT UTILITY"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
