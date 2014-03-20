@@ -76,14 +76,12 @@ def main(context):
             ob.rotation_euler[1]+=transformRotation[1]
             ob.rotation_euler[2]+=transformRotation[2]
                     
-#exports instances into udk scene format (only static mesh instances at the moment)
+#exports instances into .lvl (xml file) scene format (only static mesh instances at the moment)
 def instanceExport(context):
     print("UNITY>PLAYUP>LVL_FORMAT EXPORT BLOCK ------------------------------------------------")    
     TD_STRING="<?xml version="+'"1.0"'+" ?>\n<LEVELSETTINGS>\n\t<ENTITIES>\n"
     TD_TAG='"ExportedComponent"'
     
-    #begin exporting group instances
-    #copy to buffer?
     bpy.ops.object.select_all(action="DESELECT")###TOGGLE/DESELECT/SELECT###
     bpy.ops.object.select_linked(extend=False, type='DUPGROUP')
     
@@ -97,61 +95,26 @@ def instanceExport(context):
             exportLocation.y *= 1.0
             exportLocation.z *= 1.0 #swap the z and y axis.
             TD_STRING+='POSITION="'+str(exportLocation.x*TD_SCALE)+", "+str(exportLocation.z*TD_SCALE)+", "+str(exportLocation.y*TD_SCALE)+'" '
-            
-            bpy.ops.object.select_all(action="DESELECT")
-            ob.select = True
             bpy.context.scene.objects.active = ob
-
-            #bpy.ops.transform.rotate(value=radians(0), axis=(1, 0, 0), constraint_axis=(True, False, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-            #bpy.ops.transform.rotate(value=radians(-90), axis=(0, 1, 0), constraint_axis=(False, True, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-            #bpy.ops.transform.rotate(value=radians(-90), axis=(0, 0, 1), constraint_axis=(False, False, True), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-
             previousRotationMode = ob.rotation_mode
+
             ob.rotation_mode='QUATERNION'
-            obQuaternion=copy.copy(ob.rotation_quaternion)
-            #bpy.ops.transform.rotate(value=radians(0), axis=(1, 0, 0), constraint_axis=(True, False, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-            #bpy.ops.transform.rotate(value=radians(90), axis=(0, 1, 0), constraint_axis=(False, True, False), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-            #bpy.ops.transform.rotate(value=radians(90), axis=(0, 0, 1), constraint_axis=(False, False, True), constraint_orientation='LOCAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)            
+            obQuaternion=copy.copy(ob.rotation_quaternion)          
             ob_XYZ=copy.copy(obQuaternion.to_euler('XYZ'))
-            print(ob_XYZ)
-            ob_XYZ[0] += math.radians(0) #+ math.cos(ob_XYZ[0])
-            ob_XYZ[1] += math.radians(0) #+ (2.0*math.sin(ob_XYZ[2]))
-            ob_XYZ[2] += math.radians(0) #+ math.sin(ob_XYZ[1])
             ob_XYZ_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
-            ob_XZY=copy.copy(ob_XYZ_QUATERNION.to_euler('XYZ'))
-            ob_XZY_QUATERNION=copy.copy(ob_XYZ.to_quaternion())
-            #export_matrix=copy.copy(ob_XZY_QUATERNION.to_matrix())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='Z', to_up='Y')
-            #export_matrix=copy.copy(ob_XZY_QUATERNION.to_matrix())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='-Z', to_up='Y')
-            export_matrix=bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='-Z', to_up='Y')*copy.copy(ob_XZY_QUATERNION.to_matrix())
-            #export_matrix=copy.copy(ob.matrix_world.to_4x4())*bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='Y', to_up='Z').to_4x4()
-            
+            export_matrix=bpy_extras.io_utils.axis_conversion(from_forward='-Y', from_up='Z', to_forward='-Z', to_up='Y')*copy.copy(ob_XYZ_QUATERNION.to_matrix())            
             ob_XZY_QUATERNION = export_matrix.to_quaternion()
-            #quat_x = mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(-90.0))
-            #ob_XZY_QUATERNION= ob_XZY_QUATERNION+quat_x
-            #quat_y = mathutils.Quaternion((0.0, 1.0, 0.0), math.radians(90.0))
-            #quat_z = mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(90.0))
-            #ob_XZY_QUATERNION= ob_XZY_QUATERNION*quat_y*quat_z
             finalizedQ =copy.copy(ob_XZY_QUATERNION.normalized())
             qW = finalizedQ[0]
             qX = finalizedQ[1]
             qY = finalizedQ[2]
             qZ = finalizedQ[3]            
-            finalEulerXZY = finalizedQ.to_euler('XZY')
-            eX = finalEulerXZY[0]
-            eY = finalEulerXZY[1]
-            eZ = finalEulerXZY[2]
-
-            #bpy_extras.io_utils.axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
-
-            TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" ' #export default rotation w-x z-y
- 
+            TD_STRING+='ROTATION="'+str(qW)+", "+str(qX)+", "+str(qY)+", "+str(qZ)+'" '
             ob.rotation_mode='QUATERNION'
             ob.rotation_mode=previousRotationMode
 
 
             TD_STRING+='SCALE="'+str(ob.scale.x)+", "+str(ob.scale.y)+", "+str(ob.scale.z)+'" />\n'            
-            #360/65536 65536=2^16=2bytes
-            #TD_STRING+="\t\tRotation=(Roll="+str(int(65535*(ob.rotation_euler.x/(math.pi*2))))+",Pitch="+str(int(65535*(-1*ob.rotation_euler.y/(math.pi*2))))+",Yaw="+str(int(65535*(-1*ob.rotation_euler.z/(math.pi*2))))+")\n" 
     TD_STRING+="\t</ENTITIES>\n</LEVELSETTINGS>"
     #print(TD_STRING)
     #bpy.context.window_manager.clipboard = TD_STRING
@@ -188,7 +151,7 @@ class ToolsPanel(bpy.types.Panel):
 class OBJECT_OT_exportinstance(bpy.types.Operator):
     '''Click on ME'''
     bl_idname = "object.export_instance"
-    bl_label = "EXPORT .T3D"
+    bl_label = "EXPORT .LVL"
  
     @classmethod
     def poll(cls, context):
@@ -201,7 +164,7 @@ class OBJECT_OT_exportinstance(bpy.types.Operator):
 class OBJECT_OT_exportfbx(bpy.types.Operator):
     '''Tooltip'''
     bl_idname = "object.export_fbx"
-    bl_label = "EXPORT .FBX"
+    bl_label = "EXPORT .FBX (Groups)"
  
     @classmethod
     def poll(cls, context):
