@@ -1,8 +1,6 @@
 import bpy
 import math
 from mathutils import Vector
-
-TD_SCALE=50.000
 #main function handles fbx export process. 
 def main(context):
     print("FBX EXPORT BLOCK ------------------------------------------------")
@@ -10,6 +8,7 @@ def main(context):
     #    print(ob)
     #goes through all groups
     for go in bpy.data.groups:
+        go.name = go.name.replace(".","_")
         transformLocation= Vector((0.00,0.00,0.00))
         transformRotation= Vector((0.00,0.00,0.00))
 
@@ -51,6 +50,7 @@ def main(context):
             ob.rotation_euler[1]-=transformRotation[1]
             ob.rotation_euler[2]-=transformRotation[2]
 #export group to .fbx
+        TD_SCALE=bpy.context.scene['tdscale']
         TD_FILEPATH=bpy.context.scene['fbxFilePath']+go.name+".fbx"
         bpy.ops.export_scene.fbx(check_existing=False,filepath=TD_FILEPATH,filter_glob="*.fbx",use_selection=True,global_scale=TD_SCALE,
         axis_forward='-Z',axis_up='Y',object_types={'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY', 'MESH'},use_mesh_modifiers=True,mesh_smooth_type='FACE',
@@ -70,7 +70,8 @@ def main(context):
                     
 #exports instances into udk scene format (only static mesh instances at the moment)
 def instanceExport(context):
-    print("T3D EXPORT BLOCK ------------------------------------------------")    
+    print("T3D EXPORT BLOCK ------------------------------------------------")  
+    TD_SCALE=bpy.context.scene['tdscale']  
     TD_STRING="Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
     TD_PACKAGE=bpy.context.scene['udkPackage']
     TD_TAG='"ExportedComponent"'
@@ -109,6 +110,8 @@ class ToolsPanel(bpy.types.Panel):
  
     def draw(self, context):
         layout = self.layout
+        row=layout.row()
+        row.prop(context.scene, "tdscale")
         row=layout.row()
         row.prop(context.scene, 'fbxFilePath')
         row=layout.row()
@@ -152,12 +155,14 @@ class OBJECT_OT_exportfbx(bpy.types.Operator):
     
  
 def register():
+    bpy.types.Scene.tdscale = bpy.props.FloatProperty(name="Scale", description="Export Scale", default=50.0, min=0.001, max=1000)
     bpy.types.Scene.fbxFilePath = bpy.props.StringProperty(subtype="DIR_PATH")
     bpy.types.Scene.udkPackage = bpy.props.StringProperty()
     bpy.utils.register_module(__name__)
     bpy.utils.register_class(OBJECT_OT_exportinstance)
     bpy.utils.register_class(OBJECT_OT_exportfbx)
 def unregister():
+    del(bpy.types.Scene.tdscale)
     del(bpy.types.Scene.fbxFilePath)
     del(bpy.types.Scene.udkPackage)
     bpy.utils.unregister_module(__name__)
