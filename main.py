@@ -92,7 +92,7 @@ def instanceExport(context):
             TD_STRING+="\t\tEnd Object\n"
             TD_STRING+="\t\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             #360/65536 65536=2^16=2bytes
-            TD_STRING+="\t\tRotation=(Roll="+str(int(65535*(ob.rotation_euler.x/(math.pi*2))))+",Pitch="+str(int(65535*(-1*ob.rotation_euler.y/(math.pi*2))))+",Yaw="+str(int(65535*(-1*ob.rotation_euler.z/(math.pi*2))))+")\n" 
+            TD_STRING+="\t\tRotation=(Roll="+str(int(math.ceil(65535*((ob.rotation_euler.x%(2*math.pi))/(math.pi*2)))))+",Pitch="+str(-1*int(math.ceil(65535*((ob.rotation_euler.y%(2*math.pi))/(math.pi*2)))))+",Yaw="+str(-1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2)))))+")\n"
             TD_STRING+="\t\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
             TD_STRING+="\t\tTag="+TD_TAG+"\n"
             TD_STRING+="\t\tEnd Actor\n"
