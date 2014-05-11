@@ -101,12 +101,10 @@ def instanceExport(context):
             
             
             ob.rotation_mode='QUATERNION'
-            obQuaternion=copy.copy(ob.rotaiton_quaternion.normalized())
+            obQuaternion=copy.copy(ob.rotation_quaternion.normalized())
             obXYZ=copy.copy(obQuaternion.to_euler('XYZ'))
-
             
-            newQuat = copy(ob.rotation_quaternion.normalized())
-            newQuat = newQuat.to_euler('XYZ')
+            
             rollNum=     int(math.ceil(65535*((obXYZ.x%(2*math.pi))/(math.pi*2))))
             pitchNum= -1*int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
             yawNum=   -1*int(math.ceil(65535*((obXYZ.z%(2*math.pi))/(math.pi*2))))
