@@ -81,8 +81,10 @@ def instanceExport(context):
     
     #begin exporting group instances
     #copy to buffer?
-    bpy.ops.object.select_all(action="DESELECT")###TOGGLE/DESELECT/SELECT###
-    bpy.ops.object.select_linked(extend=False, type='DUPGROUP')
+    
+    #old style selection
+    #bpy.ops.object.select_all(action="DESELECT")###TOGGLE/DESELECT/SELECT###
+    #bpy.ops.object.select_linked(extend=False, type='DUPGROUP')
     
     
     for ob in bpy.context.selected_objects:
