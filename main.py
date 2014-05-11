@@ -2,6 +2,7 @@ import bpy
 import math
 from mathutils import Vector
 import copy
+import bpy_extras
 #main function handles fbx export process. 
 def main(context):
     print("FBX EXPORT BLOCK ------------------------------------------------")
@@ -83,7 +84,8 @@ def instanceExport(context):
     bpy.ops.object.select_all(action="DESELECT")###TOGGLE/DESELECT/SELECT###
     bpy.ops.object.select_linked(extend=False, type='DUPGROUP')
     
-    for ob in bpy.data.objects:
+    
+    for ob in bpy.context.selected_objects:
         if not hasattr(ob.dupli_group, "name"):
             print(ob.name+": was not an instance")
         else:
