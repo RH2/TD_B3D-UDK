@@ -101,18 +101,20 @@ def instanceExport(context):
             pitchNum= -1*int(math.ceil(65535*((ob.rotation_euler.y%(2*math.pi))/(math.pi*2))))
             yawNum=   -1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2))))
 
-            if rollNum != 0 &&  pitchNum != 0 && yawNum != 0:
+            if (rollNum!=0)or(pitchNum!=0)or(yawNum!=0):
                 TD_STRING+="\tRotation=(" 
-                if rollNum != 0 && pitchNum == 0 && yawNum == 0:
-                    TD_STRING+="Roll="+str(rollNum)  
-                else:
-                    TD_STRING+="Roll="+str(rollNum)+", "  
-                if pitchNum != 0 && yawNum == 0:
-                    TD_STRING+=str(pitchNum)
-                else:
-                    TD_STRING+=str(pitchNum)+", " 
-                if yawNum != 0:
-                    TD_STRING+=str(yawNum)
+                if rollNum!=0:
+                    TD_STRING+="Roll="+str(rollNum)
+                if pitchNum!=0:
+                    if rollNum == 0:
+                        TD_STRING+="Pitch="+str(pitchNum)
+                    else:
+                        TD_STRING+=", "+"Pitch="+str(pitchNum)
+                if yawNum!=0:
+                    if (rollNum==0 and pitchNum==0):
+                        TD_STRING+="Yaw="+str(yawNum)
+                    else:
+                        TD_STRING+=", "+"Yaw="+str(yawNum) 
                 TD_STRING+=")\n"
             TD_STRING+="\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
             TD_STRING+="\tColLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"            
