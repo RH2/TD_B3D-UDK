@@ -96,10 +96,11 @@ def instanceExport(context):
             #PhysicsVolume=
             TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             #360/65536 65536=2^16=2bytes
-            #version3.0#    TD_STRING+="\t\tRotation=(Roll="+str(int(math.ceil(65535*((ob.rotation_euler.x%(2*math.pi))/(math.pi*2)))))+",Pitch="+str(-1*int(math.ceil(65535*((ob.rotation_euler.y%(2*math.pi))/(math.pi*2)))))+",Yaw="+str(-1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2)))))+")\n"
-            rollNum=  int(math.ceil(65535*((ob.rotation_euler.x%(2*math.pi))/(math.pi*2))))
-            pitchNum= -1*int(math.ceil(65535*((ob.rotation_euler.y%(2*math.pi))/(math.pi*2))))
-            yawNum=   -1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2))))
+            newQuat = ob.rotation_quaternion.normalized()
+            newQuat = newQuat.to_euler('XYZ')
+            rollNum=     int(math.ceil(65535*((newQuat.x%(2*math.pi))/(math.pi*2))))
+            pitchNum= -1*int(math.ceil(65535*((newQuat.y%(2*math.pi))/(math.pi*2))))
+            yawNum=   -1*int(math.ceil(65535*((newQuat.z%(2*math.pi))/(math.pi*2))))
 
             if (rollNum!=0)or(pitchNum!=0)or(yawNum!=0):
                 TD_STRING+="\tRotation=(" 
