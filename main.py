@@ -72,9 +72,10 @@ def main(context):
 def instanceExport(context):
     print("T3D EXPORT BLOCK ------------------------------------------------")  
     TD_SCALE=bpy.context.scene['tdscale']  
-    TD_STRING="Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
+    #TD_STRING="Begin Map Name=MyMapName\n\tBegin Level NAME=PersistentLevel\n"
+    TD_STRING="Begin Map\n"
     TD_PACKAGE=bpy.context.scene['udkPackage']
-    TD_TAG='"ExportedComponent"'
+    TD_TAG='"StaticMeshActor"'
     
     #begin exporting group instances
     #copy to buffer?
@@ -86,11 +87,14 @@ def instanceExport(context):
             print(ob.name+": was not an instance")
         else:
             print(ob.dupli_group.name)
-            TD_STRING+="\t\tBegin Actor Class=StaticMeshActor Name="+ob.dupli_group.name+" Archetype=StaticMeshActor'Engine.Default__StaticMeshActor'\n"
-            TD_STRING+="\t\tBegin Object Class=StaticMeshComponent Name=StaticMeshComponent0 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'\n"
-            TD_STRING+="\t\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
-            TD_STRING+="\t\tEnd Object\n"
-            TD_STRING+="\t\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            TD_STRING+="Begin Actor Class=StaticMeshActor Name="+ob.name+ob.dupli_group.name+"\n"
+            TD_STRING+="\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
+            #bLightchanged=
+            #Level=
+            #Region=
+            TD_STRING+="\tTag="+TD_TAG+"\n"
+            #PhysicsVolume=
+            TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             #360/65536 65536=2^16=2bytes
             #version3.0#    TD_STRING+="\t\tRotation=(Roll="+str(int(math.ceil(65535*((ob.rotation_euler.x%(2*math.pi))/(math.pi*2)))))+",Pitch="+str(-1*int(math.ceil(65535*((ob.rotation_euler.y%(2*math.pi))/(math.pi*2)))))+",Yaw="+str(-1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2)))))+")\n"
             rollNum=  int(math.ceil(65535*((ob.rotation_euler.x%(2*math.pi))/(math.pi*2))))
@@ -98,7 +102,7 @@ def instanceExport(context):
             yawNum=   -1*int(math.ceil(65535*(ob.rotation_euler.z%(2*math.pi)/(math.pi*2))))
 
             if rollNum != 0 &&  pitchNum != 0 && yawNum != 0:
-                TD_STRING+="\t\tRotation=(" 
+                TD_STRING+="\tRotation=(" 
                 if rollNum != 0 && pitchNum == 0 && yawNum == 0:
                     TD_STRING+="Roll="+str(rollNum)  
                 else:
@@ -110,12 +114,13 @@ def instanceExport(context):
                 if yawNum != 0:
                     TD_STRING+=str(yawNum)
                 TD_STRING+=")\n"
-
-
-            TD_STRING+="\t\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
-            TD_STRING+="\t\tTag="+TD_TAG+"\n"
-            TD_STRING+="\t\tEnd Actor\n"
+            TD_STRING+="\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
+            TD_STRING+="\tColLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"            
+            #bSelected
+            
+            TD_STRING+="End Actor\n"
     TD_STRING+="\tEnd Level\n"
+    TD_STRING+="Begin Surface\nEnd Surface"
     TD_STRING+="End Map\n"
     print(TD_STRING)
     bpy.context.window_manager.clipboard = TD_STRING
