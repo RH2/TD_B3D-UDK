@@ -121,7 +121,7 @@ def instanceExport(context):
             #bSelected
             
             TD_STRING+="End Actor\n"
-    TD_STRING+="\tEnd Level\n"
+    #TD_STRING+="\tEnd Level\n"
     TD_STRING+="Begin Surface\nEnd Surface"
     TD_STRING+="End Map\n"
     print(TD_STRING)
