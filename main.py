@@ -96,6 +96,7 @@ def instanceExport(context):
             #Level=
             #Region=
             TD_STRING+="\tTag="+TD_TAG+"\n"
+           
             #PhysicsVolume=
             TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             #360/65536 65536=2^16=2bytes
@@ -132,7 +133,7 @@ def instanceExport(context):
             
             TD_STRING+="End Actor\n"
     #TD_STRING+="\tEnd Level\n"
-    TD_STRING+="Begin Surface\nEnd Surface"
+    TD_STRING+="Begin Surface\nEnd Surface\n"
     TD_STRING+="End Map\n"
     print(TD_STRING)
     bpy.context.window_manager.clipboard = TD_STRING
