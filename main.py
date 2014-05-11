@@ -88,6 +88,18 @@ def instanceExport(context):
     
     
     for ob in bpy.context.selected_objects:
+        ob.rotation_mode='QUATERNION'
+        obQuaternion=copy.copy(ob.rotation_quaternion.normalized())
+        obXYZ=copy.copy(obQuaternion.to_euler('XYZ'))
+            
+            
+        rollNum=     int(math.ceil(65535*((obXYZ.x%(2*math.pi))/(math.pi*2))))
+        pitchNum= -1*int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
+        yawNum=   -1*int(math.ceil(65535*((obXYZ.z%(2*math.pi))/(math.pi*2))))
+        ob.rotation_mode='XYZ'
+        
+        
+        
         if not hasattr(ob.dupli_group, "name"):
             print(ob.name+": was not an instance")
         else:
@@ -100,19 +112,27 @@ def instanceExport(context):
             TD_STRING+="\tTag="+TD_TAG+"\n"
            
             #PhysicsVolume=
-            TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            isWall=False
+            nameSegments = ob.dupli_group.name.replace(".","_")
+            nameSegments = nameSegments.split('_')#ob.name.split('_')
+            for seg in nameSegments:
+                if ( seg in ['wall','Wall','WALL']):
+                    isWall = True
+            if isWall==False:
+                TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            if isWall==True:
+                if yawNum==0 or yawNum==65535:#0||360#forward
+                    TD_STRING+="\tLocation=(X="+str((ob.location.x-4)*TD_SCALE)+",Y="+str(-1*(ob.location.y+2)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                if yawNum==32767.5:#180#back
+                    TD_STRING+="\tLocation=(X="+str((ob.location.x-0)*TD_SCALE)+",Y="+str(-1*(ob.location.y+2)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                if yawNum==16383.75:#90#left
+                    TD_STRING+="\tLocation=(X="+str((ob.location.x-2)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                if yawNum==65535:#270#right
+                    TD_STRING+="\tLocation=(X="+str((ob.location.x-2)*TD_SCALE)+",Y="+str(-1*(ob.location.y+4)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
             #360/65536 65536=2^16=2bytes
             
             
-            
-            ob.rotation_mode='QUATERNION'
-            obQuaternion=copy.copy(ob.rotation_quaternion.normalized())
-            obXYZ=copy.copy(obQuaternion.to_euler('XYZ'))
-            
-            
-            rollNum=     int(math.ceil(65535*((obXYZ.x%(2*math.pi))/(math.pi*2))))
-            pitchNum= -1*int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
-            yawNum=   -1*int(math.ceil(65535*((obXYZ.z%(2*math.pi))/(math.pi*2))))
+           
 
             if (rollNum!=0)or(pitchNum!=0)or(yawNum!=0):
                 TD_STRING+="\tRotation=(" 
