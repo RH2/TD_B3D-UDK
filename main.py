@@ -97,6 +97,9 @@ def instanceExport(context):
         pitchNum= -1*int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
         yawNum=   -1*int(math.ceil(65535*((obXYZ.z%(2*math.pi))/(math.pi*2))))
         ob.rotation_mode='XYZ'
+        ob.rotation_euler[0]=int(obXYZ[0])
+        ob.rotation_euler[1]=int(obXYZ[1])
+        ob.rotation_euler[2]=int(obXYZ[2])
         
         
         
