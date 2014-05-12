@@ -130,6 +130,7 @@ def instanceExport(context):
                 if yawNum<=65540 and yawNum>=65530:#270#right   65535
                     TD_STRING+="\tLocation=(X="+str((ob.location.x-2)*TD_SCALE)+",Y="+str(-1*(ob.location.y+4)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
             #360/65536 65536=2^16=2bytes
+            isWall = False
             
             
            
