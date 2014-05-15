@@ -109,11 +109,11 @@ def instanceExport(context):
             print(ob.dupli_group.name)
             TD_STRING+="Begin Actor Class=StaticMeshActor Name="+ob.name+ob.dupli_group.name+"\n"
             TD_STRING+="\tStaticMesh=StaticMesh'"+TD_PACKAGE+"."+ob.dupli_group.name+"'\n"
-            #bLightchanged=
-            #Level=
-            #Region=
+            TD_STRING+="\tbLightChanged=True\n"
+            TD_STRING+="\tLevel=LevelInfo'myLevel.LevelInfo0'\n"
+            TD_STRING+="\tRegion=(Zone=LevelInfo'myLevel.LevelInfo0',iLeaf=-1)\n"
             TD_STRING+="\tTag="+TD_TAG+"\n"
-           
+            TD_STRING+="\tPhysicsVolume=DefaultPhysicsVolume'myLevel.DefaultPhysicsVolume47'\n"
             #PhysicsVolume=
             isWall=False
             nameSegments = ob.dupli_group.name.replace(".","_")
@@ -155,7 +155,8 @@ def instanceExport(context):
                 TD_STRING+=")\n"
             TD_STRING+="\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
             TD_STRING+="\tColLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"            
-            #bSelected
+            TD_STRING+="\tbSelected=True\n"
+            
             
             TD_STRING+="End Actor\n"
     #TD_STRING+="\tEnd Level\n"
