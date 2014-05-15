@@ -123,15 +123,20 @@ def instanceExport(context):
                     isWall = True
             if isWall==False:
                 TD_STRING+="\tLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            parsedWall=""
+            TD_STRING+="\tLocation=("
             if isWall==True:
                 if (yawNum>=65530 or yawNum<=10):#0||360#forward
-                    TD_STRING+="\tLocation=(X="+str((ob.location.x+0.08)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                    parsedWall+="X="+str((ob.location.x+0.08)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
                 if (yawNum<=32790 and yawNum>=32750) or (yawNum<=-32790 and yawNum>=-32750) :#180#back   
-                    TD_STRING+="\tLocation=(X="+str((ob.location.x+0)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                    parsedWall+="X="+str((ob.location.x+0)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
                 if (yawNum<=16390 and yawNum>=16380) or (yawNum<=-65540 and yawNum>=-65530):#90#left  16383.75 -270
-                    TD_STRING+="\tLocation=(X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y+0)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                    parsedWall+="X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y+0)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
                 if (yawNum<=65540 and yawNum>=65530) or (yawNum<=-16390 and yawNum>=-16380):#270||-90#right   65535
-                    TD_STRING+="\tLocation=(X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.08)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
+                    parsedWall+="X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.08)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n" 
+            else:
+                parsedWall+="X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+            TD_STRING+=parsedWall       
             #360/65536 65536=2^16=2bytes
             isWall = False
             
@@ -154,9 +159,11 @@ def instanceExport(context):
                         TD_STRING+=", "+"Yaw="+str(yawNum) 
                 TD_STRING+=")\n"
             TD_STRING+="\tDrawScale3D=(X="+str(ob.scale.x)+",Y="+str(ob.scale.y)+",Z="+str(ob.scale.z)+")\n"
-            TD_STRING+="\tColLocation=(X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"            
+            TD_STRING+="\tColLocation=("
+            TD_STRING+=parsedWall             
             TD_STRING+="\tbSelected=True\n"
-            
+            parsedWall=""
+
             
             TD_STRING+="End Actor\n"
     #TD_STRING+="\tEnd Level\n"
