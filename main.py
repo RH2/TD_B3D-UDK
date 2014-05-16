@@ -89,6 +89,8 @@ def instanceExport(context):
     
     for ob in bpy.context.selected_objects:
         newXYZ=copy.copy(ob.rotation_euler)
+        newXYZ.x+=0
+        newXYZ.y+=0
         newXYZ.z+=math.pi
         obQuaternion= copy.copy(newXYZ.to_quaternion())
         obQuaternion.normalize()
@@ -96,8 +98,8 @@ def instanceExport(context):
         obXYZ=copy.copy(obQuaternion.to_euler('XYZ'))
             
             
-        rollNum=     int(math.ceil(65535*((obXYZ.x%(2*math.pi))/(math.pi*2))))
-        pitchNum= -1*int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
+        rollNum=     int(math.ceil(65535*((obXYZ.y%(2*math.pi))/(math.pi*2))))
+        pitchNum= -1*int(math.ceil(65535*((obXYZ.x%(2*math.pi))/(math.pi*2))))
         yawNum=   -1*int(math.ceil(65535*((obXYZ.z%(2*math.pi))/(math.pi*2))))
         ob.rotation_mode='XYZ'
         #ob.rotation_euler[0]=int(obXYZ[0])
