@@ -88,8 +88,11 @@ def instanceExport(context):
     
     
     for ob in bpy.context.selected_objects:
-        ob.rotation_mode='QUATERNION'
-        obQuaternion=copy.copy(ob.rotation_quaternion.normalized())
+        newXYZ=copy.copy(ob.rotation_euler)
+        newXYZ.z+=math.pi
+        obQuaternion= copy.copy(newXYZ.to_quaternion())
+        obQuaternion.normalize()
+        #obQuaternion=copy.copy(newXYZ.rotation_quaternion.normalized())
         obXYZ=copy.copy(obQuaternion.to_euler('XYZ'))
             
             
@@ -126,14 +129,8 @@ def instanceExport(context):
             parsedWall=""
             TD_STRING+="\tLocation=("
             if isWall==True:
-                if (yawNum>=65530 or yawNum<=10):#0||360#forward
-                    parsedWall+="X="+str((ob.location.x+0.08)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
-                if (yawNum<=32790 and yawNum>=32750) or (yawNum<=-32790 and yawNum>=-32750) :#180#back   
-                    parsedWall+="X="+str((ob.location.x+0)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.04)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
-                if (yawNum<=16390 and yawNum>=16380) or (yawNum<=-65540 and yawNum>=-65530):#90#left  16383.75 -270
-                    parsedWall+="X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y+0)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"        
-                if (yawNum<=65540 and yawNum>=65530) or (yawNum<=-16390 and yawNum>=-16380):#270||-90#right   65535
-                    parsedWall+="X="+str((ob.location.x+0.04)*TD_SCALE)+",Y="+str(-1*(ob.location.y-0.08)*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n" 
+                #parsedWall+="X="+str((ob.location.x*TD_SCALE)-(50*math.cos(obXYZ.z)))+",Y="+str(-1*(ob.location.y*TD_SCALE)+(50*math.sin(obXYZ.z)))+",Z="+str(ob.location.z*TD_SCALE)+")\n"
+                parsedWall+="X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             else:
                 parsedWall+="X="+str(ob.location.x*TD_SCALE)+",Y="+str(-1*ob.location.y*TD_SCALE)+",Z="+str(ob.location.z*TD_SCALE)+")\n"
             TD_STRING+=parsedWall       
